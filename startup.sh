@@ -1,1 +1,1 @@
-python manage.py collectstatic && gunicorn --workers 2 myproject.wsgi
+python3 manage.py collectstatic && gunicorn --workers 2 websocket_demo.wsgi
