@@ -31,6 +31,8 @@ ALLOWED_HOSTS = ['.awsapprunner.com', '127.0.0.1', 'localhost']
 # Application definition
 
 INSTALLED_APPS = [
+    'channels',
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -38,7 +40,20 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'server',
+    'client'
 ]
+
+ASGI_APPLICATION = 'websocket_demo.asgi.application'
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379), ('websocketdemo-001.m2ic2k.0001.apse1.cache.amazonaws.com', 6379)],
+            # Replace with your Redis server
+        },
+    },
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -68,8 +83,6 @@ TEMPLATES = [
         },
     },
 ]
-
-WSGI_APPLICATION = 'websocket_demo.wsgi.application'
 
 
 # Database

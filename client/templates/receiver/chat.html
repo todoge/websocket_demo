@@ -1,0 +1,95 @@
+<!-- chat/templates/chat/chat.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RECEIVER DEMO</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .chatBox {
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #fff;
+            height: 300px;
+            overflow-y: scroll;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .box{
+            margin-left: auto;
+            margin-right: auto;
+            width: 75%;
+        }
+
+        .message {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 5px;
+            background-color: #e8e8e8;
+            position: relative;
+        }
+        .message span {
+            font-size: 12px;
+            color: #888;
+            position: absolute;
+            right: 10px;
+            bottom: 5px;
+        }
+        footer {
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+<h1>Broadcast Receiver</h1>
+<footer>Messages are broadcasted from /server from to all the users.</footer>
+<div class="box" >
+    <strong>Channel1</strong>
+    <div class="chatBox" id="messages"></div>
+</div>
+<div class="box" >
+    <strong>Channel2</strong>
+    <div class="chatBox" id="messages2"></div>
+</div>
+
+<script>
+    const chatSocket = new WebSocket(
+        'ws://' + window.location.host + '/ws/channel1/'
+    );
+
+    const chatSocket2 = new WebSocket(
+        'ws://' + window.location.host + '/ws/channel2/'
+    );
+
+    chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        document.getElementById('messages').innerHTML += '<p class="message">' + data.message + '</p>';
+    };
+
+    chatSocket2.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        document.getElementById('messages2').innerHTML += '<p class="message">' + data.message + '</p>';
+    };
+
+
+
+    chatSocket.onclose = function(e) {
+        console.error('Chat socket closed unexpectedly');
+    };
+</script>
+</body>
+</html>

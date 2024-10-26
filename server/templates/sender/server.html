@@ -1,15 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>SENDER</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <title>SENDER DEMO</title>
     <style>
         #messageList {
-            width: 100%;
+            padding-top: 10px;
+            width: 95%;
             height: 300px;
             overflow-y: scroll;
             border: 1px solid #ccc;
-            padding: 20px;
             margin-bottom: 10px;
+            margin-right: 10px;
+        }
+        footer {
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
         }
         #chat-message-input {
             width: 80%;
@@ -17,13 +30,42 @@
         button {
             width: 15%;
         }
+        .dropdown-container {
+            display: flex;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            margin-top: 10px;
+        }
+
+        /* Label styling */
+        .dropdown-label {
+            margin-right: 10px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        /* Dropdown styling */
+        .dropdown {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .dropdown:hover, .dropdown:focus {
+            border-color: #007bff;
+        }
     </style>
     <script>
         const handler = {
             set(target, property, value) {
-                console.log(`Array changed at index ${property}: ${target[property]} -> ${value}`);
                 target[property] = value;
                 renderMessages();
+                handleButtonClick();
                 return true; // Indicate success
             }
         };
@@ -33,19 +75,26 @@
         function sendMessage() {
             const messageInputDom = document.querySelector('#chat-message-input');
             const message = messageInputDom.value;
+            const channel = getSelectedChannel()
+            if (message.length === 0) {
+                return
+            }
             // Send a POST request to the server
-            fetch('/server/queue/', {
+            fetch('/server/receiver/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({'message': message})
+                body: JSON.stringify({'message': message, 'channel': channel})
             }).then(response => {
+                console.log(`sent to ${channel}`)
+                var newDate = new Date();
+                var datetime = "Sent at: " + newDate.today() + " " + newDate.timeNow();
                 if (response.ok) {
                     messageInputDom.value = '';  // Clear input after sending
-                    history.push([message, true]);
+                    history.push([datetime, message, channel, true]);
                 } else {
-                    history.push([message, false]);
+                    history.push([message, channel, false]);
                 }
             }).catch(error => {
                 console.error('Fetch error:', error);
@@ -61,36 +110,63 @@
             return ((this.getHours() < 10)?"0":"") + this.getHours() +":"+ ((this.getMinutes() < 10)?"0":"") + this.getMinutes() +":"+ ((this.getSeconds() < 10)?"0":"") + this.getSeconds();
         }
 
-        document.getElementById("addButton").addEventListener("click", () => {
-            const inputValue = document.getElementById("arrayInput").value;
-            if (inputValue.trim()) { // Only add if there's input
-                history.push(inputValue);
-                document.getElementById("arrayInput").value = ""; // Clear input
-            }
-        });
-
         function renderMessages() {
             const messageList = document.getElementById("messageList");
             messageList.innerHTML = ""; // Clear existing list items
-            console.log("SENT")
-            var newDate = new Date();
-            var datetime = "Sent at: " + newDate.today() + " " + newDate.timeNow();
             // Append each message in the array as a list item
             history.forEach((message, index) => {
                 var status =  message[1] ? "SUCCESS" : "FAILED";
                 const listItem = document.createElement("li");
-                listItem.textContent = `[${datetime}] [${status}] message ${message[0]}`;
+                listItem.textContent = `[${message[0]}] [${status}] #${message[2]}: ${message[1]}`;
                 messageList.appendChild(listItem);
             });
+        }
+        function getSelectedChannel() {
+            const channelSelect = document.getElementById('channel-select');
+             // Get the selected value
+            return channelSelect.value;
+        }
+        function handleButtonClick() {
+            const button = document.getElementById('sendBtn');
+            // Disable the button to prevent additional clicks
+            const textInput = document.getElementById('chat-message-input');
+            button.disabled = true;
+            // Re-enable the button after 1 second
+            setTimeout(() => {
+                button.disabled = textInput.value.trim() === "";
+            }, 2000);
         }
     </script>
 </head>
 <body>
 <h1>Server</h1>
+<footer>The server simulates the gRPC call to the push service and is broadcasted to users in the user group
+    and channel</footer>
 <strong>Send history</strong>
 <!--<div id="chat-log" readonly></div>-->
 <ul id="messageList"></ul>
 <input id="chat-message-input" type="text" size="80">
-<button onclick="sendMessage()">Send</button>
+<button id="sendBtn" onclick="sendMessage()">Send</button>
+<div class="dropdown-container">
+    <label for="channel-select" class="dropdown-label">Select Channel:</label>
+    <select id="channel-select" class="dropdown">
+        <option value="channel1">Channel 1</option>
+        <option value="channel2">Channel 2</option>
+        <option value="all">All channels</option>
+    </select>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const textInput = document.getElementById('chat-message-input');
+        const submitButton = document.getElementById('sendBtn');
+        submitButton.disabled = textInput.value.trim() === "";
+        textInput.addEventListener('input', function() {
+            // Disable the button if the input is empty, enable it otherwise
+            submitButton.disabled = textInput.value.trim() === "";
+        });
+    });
+
+
+</script>
 </body>
 </html>

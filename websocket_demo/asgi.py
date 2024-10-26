@@ -1,5 +1,5 @@
 """
-ASGI config for websocket_demo project.
+ASGI credentials for websocket_demo project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -9,8 +9,19 @@ https://docs.djangoproject.com/en/4.2/howto/deployment/asgi/
 
 import os
 
+from channels.auth import AuthMiddlewareStack
+from channels.routing import ProtocolTypeRouter, URLRouter
 from django.core.asgi import get_asgi_application
+
+from client import routing
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'websocket_demo.settings')
 
-application = get_asgi_application()
+application = ProtocolTypeRouter({
+    "http": get_asgi_application(),
+    "websocket": AuthMiddlewareStack(
+        URLRouter(
+            routing.websocket_urlpatterns
+        )
+    ),
+})
