@@ -1,4 +1,4 @@
-python3 manage.py migrate
-python3 manage.py collectstatic
-python3 -m daphne websocket_demo.asgi:application
-python3 -m gunicorn --workers 2 websocket_demo.asgi:application -k uvicorn_worker.UvicornWorker
+python manage.py migrate
+python manage.py collectstatic
+python -m daphne websocket_demo.asgi:application
+python -m gunicorn --workers 2 websocket_demo.asgi:application -k uvicorn_worker.UvicornWorker
