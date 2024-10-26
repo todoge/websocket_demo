@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import json
+import os
 from pathlib import Path
 import boto3
 from botocore.exceptions import ClientError
@@ -37,6 +38,8 @@ def get_secret(name):
 
 
 credentials = get_secret("rds!db-bd8b684d-fea9-42d0-be51-ee77dc0fc8a3")
+isDev = os.getenv('DJANGO_DEVELOPMENT') == 'true'
+redis = ("127.0.0.1", 6379) if isDev else ('websocketdemo-001.m2ic2k.0001.apse1.cache.amazonaws.com', 6379)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -73,7 +76,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("127.0.0.1", 6379), ('websocketdemo-001.m2ic2k.0001.apse1.cache.amazonaws.com', 6379)],
+            "hosts": [redis],
             # Replace with your Redis server
         },
     },
