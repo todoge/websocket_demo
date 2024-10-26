@@ -40,6 +40,7 @@ def get_secret(name):
 credentials = get_secret("rds!db-bd8b684d-fea9-42d0-be51-ee77dc0fc8a3")
 isDev = os.getenv('DJANGO_DEVELOPMENT') == 'true'
 redis = ("127.0.0.1", 6379) if isDev else ('websocketdemo-001.m2ic2k.0001.apse1.cache.amazonaws.com', 6379)
+print(isDev, redis)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -77,7 +78,6 @@ CHANNEL_LAYERS = {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
             "hosts": [redis],
-            # Replace with your Redis server
         },
     },
 }
