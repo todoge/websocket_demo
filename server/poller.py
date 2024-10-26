@@ -34,12 +34,11 @@ channels = ['channel1', 'channel2']
 
 def poll_from_sns():
     messages = receive_messages()
-    print('polling', messages)
     for message in messages:
         payload = json.loads(message['Body'])
         broadcastTo = payload['channel']
         broadcastMsg = payload['message']
-        print('broadcast to', broadcastTo)
+        print('broadcast to', broadcastTo, broadcastMsg)
         if broadcastTo == 'all':
             for channel in channels:
                 broadcast(channel, broadcastMsg)
