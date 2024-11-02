@@ -68,11 +68,11 @@
 
 <script>
     const chatSocket = new WebSocket(
-        'wss://' + window.location.host + '/ws/channel1/'
+        'wss://' + window.location.host + ':8001/ws/channel1/'
     );
 
     const chatSocket2 = new WebSocket(
-        'wss://' + window.location.host + '/ws/channel2/'
+        'wss://' + window.location.host + ':8001/ws/channel2/'
     );
 
     chatSocket.onmessage = function(e) {
