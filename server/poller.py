@@ -1,6 +1,7 @@
 import json
 import threading
 import time
+from json import JSONDecodeError
 
 from asgiref.sync import async_to_sync
 from schedule import Scheduler
@@ -35,16 +36,21 @@ channels = ['channel1', 'channel2']
 def poll_from_sns():
     messages = receive_messages()
     for message in messages:
-        payload = json.loads(message['Body'])
-        broadcastTo = payload['channel']
-        broadcastMsg = payload['message']
-        print('broadcast to', broadcastTo, broadcastMsg)
-        if broadcastTo == 'all':
-            for channel in channels:
-                broadcast(channel, broadcastMsg)
-        else:
-            broadcast(broadcastTo, broadcastMsg)
-        delete_messages(message['ReceiptHandle'])
+        print(message)
+        try:
+            payload = json.loads(message['Body'])
+            broadcastTo = payload['channel']
+            broadcastMsg = payload['message']
+            print('broadcast to', broadcastTo, broadcastMsg)
+            if broadcastTo == 'all':
+                for channel in channels:
+                    broadcast(channel, broadcastMsg)
+            else:
+                broadcast(broadcastTo, broadcastMsg)
+        except JSONDecodeError:
+            print("Json serialising error")
+        finally:
+            delete_messages(message['ReceiptHandle'])
 
 
 def broadcast(channel, message):
