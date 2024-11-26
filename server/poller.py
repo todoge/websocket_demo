@@ -35,7 +35,6 @@ channels = ['channel1', 'channel2']
 
 def poll_from_sns():
     messages = receive_messages()
-    print("polling", messages)
     for message in messages:
         print(message)
         try:
